@@ -1,0 +1,23 @@
+{
+  "name": "callisto-client",
+  "version": "0.1.0",
+  "description": "Callisto ITM Viewer Client",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "shared/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter viewer-electron dev",
+    "build": "pnpm --filter viewer-electron build",
+    "typegen": "pnpm --filter shared-types typegen",
+    "postinstall": "pnpm typegen"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

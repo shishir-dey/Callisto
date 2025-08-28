@@ -1,0 +1,268 @@
+# Callisto ITM Viewer - Git Ignore File
+
+# Build directories
+/target/
+/build/
+/dist/
+/dist-electron/
+/release/
+
+# Rust build artifacts
+server/target/
+callisto-trace/target/
+**/target/
+Cargo.lock
+
+# Node.js dependencies and build artifacts
+node_modules/
+client/node_modules/
+client/apps/*/node_modules/
+client/shared/*/node_modules/
+client/apps/*/dist/
+client/apps/*/dist-electron/
+client/apps/*/release/
+client/apps/*/build/
+*.tsbuildinfo
+.pnpm-store/
+pnpm-lock.yaml
+
+# Generated TypeScript types (regenerated from schemas)
+client/shared/types/src/*.d.ts
+!client/shared/types/src/index.ts
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Electron build artifacts
+client/apps/*/out/
+client/apps/*/app/
+client/apps/*/packages/
+
+# Rust debug info
+*.pdb
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Test artifacts
+test-results/
+playwright-report/
+test-results.xml
+
+# Profiling data
+*.prof
+
+# Documentation build artifacts
+docs/_build/
+docs/book/
+
+# Just command runner cache
+.just/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Local development overrides
+.env.local
+config.local.*
+*.local
+
+# Platform-specific build outputs
+*.exe
+*.dll
+*.so
+*.dylib
+*.app
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.msi
+*.AppImage
+
+# Rust-specific
+**/*.rs.bk
+*.orig
+
+# Cargo audit database
+~/.cargo/advisory-db/
+
+# IDE-specific files
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/recommended-extensions.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
+*.swp
+*.swo
+Session.vim
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Security and secrets
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+.secrets/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Archive files (unless specifically needed)
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Generated documentation
+docs/api/
+docs/coverage/
+
+# Benchmark results
+benchmarks/results/
+*.bench
+
+# Flamegraph outputs
+flamegraph.svg
+perf.data*
+
+# Valgrind outputs
+vgcore.*
+massif.out.*
+
+# Core dumps
+core
+core.*
+
+# Lock files (keep package-lock.json but ignore others)
+yarn.lock
+pnpm-lock.yaml
+# Keep package-lock.json for npm projects
+# !package-lock.json
+
+# Generated files that should be recreated
+schema/ws/*.json
+!schema/ws/.gitkeep

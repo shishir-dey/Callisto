@@ -1,0 +1,20 @@
+[package]
+name = "callisto-trace"
+version = "0.1.0"
+edition = "2021"
+description = "Callisto ITM tracing library for embedded Rust (no_std)"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/callisto-itm/callisto"
+keywords = ["embedded", "itm", "trace", "debug", "cortex-m"]
+categories = ["embedded", "development-tools::debugging"]
+
+[dependencies]
+cortex-m = { version = "0.7", optional = true }
+
+[features]
+default = ["cortex-m"]
+cortex-m = ["dep:cortex-m"]
+
+[package.metadata.docs.rs]
+all-features = true
+targets = ["thumbv7em-none-eabihf"]

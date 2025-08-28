@@ -1,0 +1,40 @@
+[package]
+name = "callisto-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "callisto"
+path = "src/main.rs"
+
+[dependencies]
+callisto-protocol = { path = "../protocol" }
+callisto-core = { path = "../core" }
+
+# Web server and WebSocket
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+
+# Async runtime
+tokio = { workspace = true }
+
+# CLI
+clap = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Utilities
+uuid = { workspace = true }
+chrono = { workspace = true }
+futures-util = "0.3"

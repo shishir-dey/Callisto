@@ -1,0 +1,21 @@
+{
+  "name": "shared-types",
+  "version": "0.1.0",
+  "description": "Generated TypeScript types for Callisto protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "typegen": "json2ts -i ../../../schema/ws/protocol.json -o src/protocol.d.ts && json2ts -i ../../../schema/ws/server-message.json -o src/server-message.d.ts && json2ts -i ../../../schema/ws/client-message.json -o src/client-message.d.ts",
+    "build": "tsc",
+    "clean": "rm -rf dist src/*.d.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "json-schema-to-typescript": "^13.1.1",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
+}
