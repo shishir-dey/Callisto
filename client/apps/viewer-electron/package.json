@@ -15,32 +15,32 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "shared-types": "workspace:*",
+    "ajv": "^8.12.0",
+    "clsx": "^2.0.0",
+    "lucide-react": "^0.294.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "ajv": "^8.12.0",
     "recharts": "^2.8.0",
-    "lucide-react": "^0.294.0",
-    "clsx": "^2.0.0"
+    "shared-types": "workspace:*"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.0",
+    "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@types/node": "^20.0.0",
     "@vitejs/plugin-react": "^4.1.0",
-    "electron": "^27.0.0",
+    "autoprefixer": "^10.4.0",
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
+    "electron": "^37.4.0",
     "electron-builder": "^24.6.4",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.3.0",
     "typescript": "^5.0.0",
     "vite": "^4.4.0",
     "vite-plugin-electron": "^0.14.1",
     "vite-plugin-electron-renderer": "^0.14.5",
-    "concurrently": "^8.2.0",
-    "wait-on": "^7.0.1",
-    "cross-env": "^7.0.3",
-    "tailwindcss": "^3.3.0",
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0",
-    "@tailwindcss/forms": "^0.5.0"
+    "wait-on": "^7.0.1"
   },
   "build": {
     "appId": "com.callisto.viewer",
@@ -57,16 +57,23 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
-      ]
+      ],
+      "identity": null,
+      "sign": false
     },
     "win": {
       "icon": "assets/icon.ico",
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
@@ -75,7 +82,9 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
@@ -83,7 +92,9 @@
       {
         "from": "../../../server/target/release/",
         "to": "server/",
-        "filter": ["callisto*"]
+        "filter": [
+          "callisto*"
+        ]
       }
     ]
   }

@@ -22,7 +22,6 @@
   },
   "include": [
     "src",
-    "electron",
     "../../shared/types/src"
   ],
   "references": [

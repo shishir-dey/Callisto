@@ -42,11 +42,23 @@ function createWindow(): void {
 
 function startServer(): Promise<void> {
   return new Promise((resolve, reject) => {
-    const serverPath = isDev 
-      ? join(__dirname, '../../../server/target/debug/callisto')
-      : join(process.resourcesPath, 'server/callisto')
+    // In development, use the debug build from the project root
+    // In production, the server binary should be in the app resources
+    let serverPath: string
+
+    if (isDev) {
+      // When running in development, find the server relative to the app root
+      const appRoot = join(__dirname, '../../../..')
+      serverPath = join(appRoot, 'server/target/debug/callisto')
+    } else {
+      // In production, server should be bundled in app resources
+      serverPath = join(process.resourcesPath, 'server/callisto')
+    }
 
     console.log('Starting server at:', serverPath)
+    console.log('__dirname:', __dirname)
+    console.log('isDev:', isDev)
+    console.log('process.resourcesPath:', process.resourcesPath)
 
     serverProcess = spawn(serverPath, ['--mock'], {
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -133,7 +145,7 @@ ipcMain.handle('restart-server', async () => {
     await startServer()
     return { success: true }
   } catch (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 })
 
