@@ -36,21 +36,18 @@ This will:
 
 ```
 callisto/
-├── server/                 # Rust server workspace
-│   ├── protocol/          # WebSocket protocol definitions
-│   ├── core/              # ITM processing engine
-│   └── cli/               # WebSocket server binary
 ├── client/                # Node.js client workspace
-│   ├── apps/
-│   │   └── viewer-electron/  # Electron + React app
-│   └── shared/
-│       └── types/         # Generated TypeScript types
-├── schema/                # JSON schemas
-│   └── ws/               # WebSocket message schemas
+│   ├── apps/viewer-electron/  # Electron + React app
+│   └── shared/types/          # Shared TypeScript types
+├── server/                # Rust server workspace
+│   ├── protocol/          # WebSocket protocol definitions
+│   └── cli/               # WebSocket server binary
+├── device/                # Device-side libraries
+│   ├── c/callisto_trace.h     # C header for embedded systems
+│   └── rust/callisto-trace/   # Rust library for embedded systems
 ├── docs/                  # Documentation
-├── callisto-trace/        # Embedded Rust library
-├── callisto_trace.h       # Embedded C library
 ├── justfile              # Development commands
+├── README.md
 └── .github/              # CI/CD workflows
 ```
 
