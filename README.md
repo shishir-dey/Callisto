@@ -2,20 +2,6 @@
 
 A real-time ITM (Instrumentation Trace Macrocell) viewer for embedded systems development. Callisto provides a modern, Apple-inspired interface for visualizing trace data from ARM Cortex-M microcontrollers.
 
-![Callisto Screenshot](docs/images/screenshot.png)
-
-## Features
-
-- 🚀 **Real-time ITM trace visualization** with sub-10ms latency
-- 📊 **Apple-inspired UI** with timeline, CPU charts, and performance metrics
-- 🦀 **High-performance Rust server** with probe-rs integration
-- ⚛️ **Cross-platform Electron client** (Windows, macOS, Linux)
-- 🔌 **Easy embedded integration** with C header and Rust crate
-- 📡 **WebSocket protocol** with JSON schema validation
-- 🎯 **Multi-port support** for different trace data types
-- 🔍 **Advanced filtering** and search capabilities
-- 📈 **Performance monitoring** with drop rate and throughput stats
-
 ## Quick Start
 
 ### Prerequisites
@@ -311,37 +297,3 @@ git push origin feature/amazing-feature
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [probe-rs](https://github.com/probe-rs/probe-rs) - Rust debugging toolkit
-- [Electron](https://electronjs.org/) - Cross-platform desktop apps
-- [React](https://reactjs.org/) - UI framework
-- [Axum](https://github.com/tokio-rs/axum) - Web framework for Rust
-- ARM Cortex-M ITM specification
-
-## Roadmap
-
-### v0.2.0
-- [ ] Real probe-rs integration (currently mocked)
-- [ ] File export/import functionality
-- [ ] Advanced filtering and search
-- [ ] Performance optimizations
-
-### v0.3.0
-- [ ] Multiple probe support
-- [ ] Remote server connections
-- [ ] Plugin system
-- [ ] Advanced visualization modes
-
-### v1.0.0
-- [ ] Web-based client option
-- [ ] Production-ready stability
-- [ ] Comprehensive hardware testing
-- [ ] Professional documentation
-
----
-
-**Made with ❤️ for embedded developers**
-
-For questions, issues, or feature requests, please visit our [GitHub repository](https://github.com/callisto-itm/callisto).
