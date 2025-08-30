@@ -253,10 +253,6 @@ perf.data*
 vgcore.*
 massif.out.*
 
-# Core dumps
-core
-core.*
-
 # Lock files (keep package-lock.json but ignore others)
 yarn.lock
 pnpm-lock.yaml
