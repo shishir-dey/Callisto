@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { spawn, ChildProcess } from 'child_process'
+import { existsSync } from 'fs'
 
 const isDev = process.env.IS_DEV === 'true'
 
@@ -42,17 +43,20 @@ function createWindow(): void {
 
 function startServer(): Promise<void> {
   return new Promise((resolve, reject) => {
-    // In development, use the debug build from the project root
-    // In production, the server binary should be in the app resources
+    // Always check for dev server first, then fall back to production
     let serverPath: string
 
-    if (isDev) {
-      // When running in development, find the server relative to the app root
-      const appRoot = join(__dirname, '../../../..')
-      serverPath = join(appRoot, 'server/target/debug/callisto')
+    // Check if dev server exists first
+    const appRoot = join(__dirname, '../../../..')
+    const devServerPath = join(appRoot, 'server/target/debug/callisto')
+
+    if (existsSync(devServerPath)) {
+      serverPath = devServerPath
+      console.log('Using development server binary')
     } else {
       // In production, server should be bundled in app resources
       serverPath = join(process.resourcesPath, 'server/callisto')
+      console.log('Using production server binary')
     }
 
     console.log('Starting server at:', serverPath)

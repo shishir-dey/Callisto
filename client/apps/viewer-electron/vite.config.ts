@@ -24,7 +24,7 @@ export default defineConfig({
             minify: false,
             outDir: 'dist-electron',
             rollupOptions: {
-              external: Object.keys('dependencies' in {} ? {} : {}),
+              external: ['electron'],
             },
           },
         },
@@ -41,7 +41,7 @@ export default defineConfig({
             minify: false,
             outDir: 'dist-electron',
             rollupOptions: {
-              external: Object.keys('dependencies' in {} ? {} : {}),
+              external: ['electron'],
             },
           },
         },
