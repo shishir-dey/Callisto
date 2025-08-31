@@ -280,11 +280,19 @@ just test-e2e
 ### Manual Testing
 
 ```bash
-# Start with mock data
+# Start development environment (includes device selection)
 just dev
 
-# Test with real hardware (if available)
-just server --no-mock
+# Test server with specific device types
+just server --mock          # Mock device for testing
+just server --probe         # Real hardware probes
+just server --list-probes   # List available devices
+
+# Test client features
+# - Device selection modal on startup
+# - Light/dark theme toggle
+# - Card-based layout with borders
+# - Real-time device switching
 ```
 
 ## Debugging
@@ -450,6 +458,29 @@ just install-client
 node --version  # Should be 18+
 ```
 
+**"Device selection not working"**
+```bash
+# Check probe-rs installation
+cargo install probe-rs --features cli
+
+# Test device detection manually
+just list-probes
+
+# Check server logs for device errors
+RUST_LOG=debug just server
+```
+
+**"Server startup conflicts"**
+```bash
+# Kill existing server processes
+pkill -f callisto
+lsof -ti:9229 | xargs kill -9
+
+# Clean restart
+just clean
+just dev
+```
+
 **"TypeScript errors after protocol changes"**
 ```bash
 # Regenerate types
@@ -457,6 +488,15 @@ just typegen
 
 # Clear TypeScript cache
 rm -rf client/apps/viewer-electron/node_modules/.cache
+```
+
+**"Theme not switching properly"**
+```bash
+# Clear browser cache in Electron
+# Use Ctrl+Shift+R or Cmd+Shift+R to hard refresh
+
+# Check CSS variables are loaded
+# Open DevTools and inspect :root element
 ```
 
 ### Getting Help

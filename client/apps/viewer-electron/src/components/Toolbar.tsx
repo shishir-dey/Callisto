@@ -1,59 +1,92 @@
+interface Device {
+  id: string
+  name: string
+  type: 'mock' | 'real'
+}
+
 interface ToolbarProps {
   connected: boolean
   tracing: boolean
   serverVersion?: string
+  selectedDevice: Device | null
+  theme: 'light' | 'dark'
   onConnect: () => void
-  onStartTracing: () => void
-  onStopTracing: () => void
+  onDisconnect: () => void
+  onToggleTheme: () => void
+  onShowDeviceModal: () => void
 }
 
 export function Toolbar({
   connected,
   tracing,
   serverVersion,
+  selectedDevice,
+  theme,
   onConnect,
-  onStartTracing,
-  onStopTracing
+  onDisconnect,
+  onToggleTheme,
+  onShowDeviceModal
 }: ToolbarProps) {
   return (
     <div className="toolbar">
       <div className="toolbar-section">
-        <button
-          className={`btn ${connected ? 'btn-secondary' : 'btn-primary'}`}
-          onClick={onConnect}
-          disabled={connected}
-        >
-          {connected ? 'Connected' : 'Connect'}
-        </button>
-        
-        <div className="toolbar-divider" />
-        
-        <div className={`status-pill ${connected ? 'connected' : 'disconnected'}`}>
-          {connected ? 'Connected' : 'Disconnected'}
-        </div>
-        
-        {connected && (
-          <div className="status-pill">
-            Mock Target
-          </div>
+        {/* Connect/Disconnect Button */}
+        {connected ? (
+          <button
+            className="btn btn-danger"
+            onClick={onDisconnect}
+            style={{ 
+              background: '#dc3545',
+              borderColor: '#dc3545',
+              minWidth: '100px'
+            }}
+          >
+            🔴 Disconnect
+          </button>
+        ) : (
+          <button
+            className="btn btn-primary"
+            onClick={onConnect}
+            disabled={!selectedDevice}
+            style={{ 
+              background: '#28a745',
+              borderColor: '#28a745',
+              minWidth: '100px'
+            }}
+          >
+            🟢 Connect
+          </button>
         )}
-      </div>
-
-      <div className="toolbar-section">
+        
         <div className="toolbar-divider" />
         
-        <label htmlFor="baud-select" style={{ fontSize: '12px', color: '#999' }}>
-          Baud:
+        {/* Device Name */}
+        {selectedDevice ? (
+          <div className="status-pill" onClick={onShowDeviceModal} style={{ cursor: 'pointer' }}>
+            {selectedDevice.name}
+          </div>
+        ) : (
+          <button className="btn btn-secondary" onClick={onShowDeviceModal}>
+            Select Device
+          </button>
+        )}
+        
+        <div className="toolbar-divider" />
+        
+        {/* ITM Baud Rate */}
+        <label htmlFor="baud-select" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+          ITM Baud:
         </label>
         <select
           id="baud-select"
           style={{
-            background: '#3a3a3a',
-            border: '1px solid #555',
-            color: '#fff',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-primary)',
             padding: '4px 8px',
             borderRadius: '4px',
-            fontSize: '12px'
+            fontSize: '12px',
+            marginLeft: '4px'
           }}
           defaultValue="2000000"
         >
@@ -63,51 +96,37 @@ export function Toolbar({
           <option value="2000000">2000000</option>
         </select>
 
-        <label htmlFor="port-filter" style={{ fontSize: '12px', color: '#999', marginLeft: '12px' }}>
-          Ports:
+        <div className="toolbar-divider" />
+
+        {/* ITM Ports */}
+        <label htmlFor="port-filter" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+          ITM Ports:
         </label>
         <input
           id="port-filter"
           type="text"
           placeholder="0-31"
           style={{
-            background: '#3a3a3a',
-            border: '1px solid #555',
-            color: '#fff',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-primary)',
             padding: '4px 8px',
             borderRadius: '4px',
             fontSize: '12px',
-            width: '60px'
+            width: '60px',
+            marginLeft: '4px'
           }}
         />
       </div>
 
       <div className="toolbar-section" style={{ marginLeft: 'auto' }}>
-        {connected && !tracing && (
-          <button
-            className="btn btn-primary"
-            onClick={onStartTracing}
-          >
-            Start Tracing
-          </button>
-        )}
-        
-        {connected && tracing && (
-          <>
-            <div className="status-pill tracing">
-              Tracing
-            </div>
-            <button
-              className="btn btn-danger"
-              onClick={onStopTracing}
-            >
-              Stop
-            </button>
-          </>
-        )}
+        {/* Theme Toggle */}
+        <button className="theme-toggle" onClick={onToggleTheme}>
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
         
         {serverVersion && (
-          <div style={{ fontSize: '11px', color: '#666', marginLeft: '12px' }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginLeft: '12px' }}>
             v{serverVersion}
           </div>
         )}

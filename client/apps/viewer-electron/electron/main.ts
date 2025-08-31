@@ -19,7 +19,7 @@ function createWindow(): void {
       nodeIntegration: false,
       contextIsolation: true,
     },
-    titleBarStyle: 'hiddenInset', // macOS style
+    titleBarStyle: 'default', // Use default title bar to prevent content overlap
     show: false, // Don't show until ready
   })
 
@@ -59,17 +59,17 @@ async function checkServerRunning(): Promise<boolean> {
 
 function startServer(): Promise<void> {
   return new Promise(async (resolve, reject) => {
-    // In development mode, check if server is already running
-    if (isDev) {
-      console.log('Development mode detected, checking if server is already running...')
-      const serverRunning = await checkServerRunning()
-      if (serverRunning) {
-        console.log('Server already running, skipping server startup')
-        resolve()
-        return
-      }
-      console.log('No server detected, starting our own...')
+    // Always check if server is already running first
+    console.log('Checking if server is already running...')
+    const serverRunning = await checkServerRunning()
+    if (serverRunning) {
+      console.log('Server already running, using existing server')
+      resolve()
+      return
     }
+
+    // Only start our own server if none is running
+    console.log('No server detected, starting our own...')
 
     // Always check for dev server first, then fall back to production
     let serverPath: string
@@ -88,11 +88,9 @@ function startServer(): Promise<void> {
     }
 
     console.log('Starting server at:', serverPath)
-    console.log('__dirname:', __dirname)
-    console.log('isDev:', isDev)
-    console.log('process.resourcesPath:', process.resourcesPath)
 
-    serverProcess = spawn(serverPath, ['--mock'], {
+    // Start server without any device flags initially
+    serverProcess = spawn(serverPath, [], {
       stdio: ['pipe', 'pipe', 'pipe'],
     })
 
@@ -105,11 +103,22 @@ function startServer(): Promise<void> {
 
     serverProcess.stderr?.on('data', (data) => {
       console.error('Server stderr:', data.toString())
+      // If we get "Address already in use", resolve anyway since server is running
+      if (data.toString().includes('Address already in use')) {
+        console.log('Server already running on port, using existing server')
+        resolve()
+      }
     })
 
     serverProcess.on('error', (error) => {
       console.error('Failed to start server:', error)
-      reject(error)
+      // Don't reject if server is already running
+      if (error.message.includes('EADDRINUSE')) {
+        console.log('Server already running, using existing server')
+        resolve()
+      } else {
+        reject(error)
+      }
     })
 
     serverProcess.on('exit', (code) => {
@@ -119,9 +128,7 @@ function startServer(): Promise<void> {
 
     // Timeout after 10 seconds
     setTimeout(() => {
-      if (serverProcess && !serverProcess.killed) {
-        resolve() // Assume it started successfully
-      }
+      resolve() // Always resolve after timeout
     }, 10000)
   })
 }
@@ -193,4 +200,194 @@ ipcMain.handle('show-open-dialog', async (_, options) => {
   
   const result = await dialog.showOpenDialog(mainWindow, options)
   return result
+})
+
+ipcMain.handle('restart-server-with-device', async (_, deviceType: 'mock' | 'real') => {
+  console.log(`Switching to device type: ${deviceType}`)
+  
+  try {
+    // Check if external server is running (from just dev)
+    const externalServerRunning = await checkServerRunning()
+    if (externalServerRunning && !serverProcess) {
+      console.log('External server detected, using existing server')
+      // For external servers, we can't change device type, so just connect
+      return {
+        success: true,
+        message: 'Using external server. Device type controlled by server startup arguments.'
+      }
+    }
+
+    // Only stop our own server process
+    if (serverProcess && !serverProcess.killed) {
+      console.log('Stopping our server process')
+      stopServer()
+      // Wait for server to stop
+      await new Promise(resolve => setTimeout(resolve, 2000))
+    }
+
+    // Always check for dev server first, then fall back to production
+    let serverPath: string
+
+    // Check if dev server exists first
+    const appRoot = join(__dirname, '../../../..')
+    const devServerPath = join(appRoot, 'server/target/debug/callisto')
+
+    if (existsSync(devServerPath)) {
+      serverPath = devServerPath
+      console.log('Using development server binary')
+    } else {
+      // In production, server should be bundled in app resources
+      serverPath = join(process.resourcesPath, 'server/callisto')
+      console.log('Using production server binary')
+    }
+
+    const args = deviceType === 'mock' ? ['--mock'] : ['--probe']
+    console.log('Starting server with args:', args)
+
+    serverProcess = spawn(serverPath, args, {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    })
+
+    return new Promise((resolve, reject) => {
+      let resolved = false
+
+      serverProcess!.stdout?.on('data', (data) => {
+        console.log('Server stdout:', data.toString())
+        if (data.toString().includes('Server listening') && !resolved) {
+          resolved = true
+          resolve({ success: true })
+        }
+      })
+
+      serverProcess!.stderr?.on('data', (data) => {
+        console.error('Server stderr:', data.toString())
+        if (data.toString().includes('Address already in use') && !resolved) {
+          resolved = true
+          resolve({ success: false, error: 'Server port is already in use' })
+        }
+      })
+
+      serverProcess!.on('error', (error) => {
+        console.error('Failed to start server:', error)
+        if (!resolved) {
+          resolved = true
+          reject({ success: false, error: error.message })
+        }
+      })
+
+      serverProcess!.on('exit', (code) => {
+        console.log('Server process exited with code:', code)
+        serverProcess = null
+        if (!resolved) {
+          resolved = true
+          resolve({ success: false, error: `Server exited with code ${code}` })
+        }
+      })
+
+      // Timeout after 15 seconds
+      setTimeout(() => {
+        if (!resolved) {
+          resolved = true
+          if (serverProcess && !serverProcess.killed) {
+            resolve({ success: true }) // Assume it started successfully
+          } else {
+            resolve({ success: false, error: 'Server startup timeout' })
+          }
+        }
+      }, 15000)
+    })
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
+  }
+})
+
+ipcMain.handle('get-available-devices', async () => {
+  try {
+    // Try using probe-rs directly first
+    return new Promise((resolve, reject) => {
+      const probeProcess = spawn('probe-rs', ['list'], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      })
+
+      let stdout = ''
+      let stderr = ''
+
+      probeProcess.stdout?.on('data', (data) => {
+        stdout += data.toString()
+      })
+
+      probeProcess.stderr?.on('data', (data) => {
+        stderr += data.toString()
+      })
+
+      probeProcess.on('close', (code) => {
+        const devices = [
+          { id: 'mock', name: 'Mock Device', type: 'mock' }
+        ]
+
+        if (code === 0 && stdout.trim()) {
+          // Parse probe-rs list output
+          const lines = stdout.split('\n').filter(line => line.trim())
+          let probeIndex = 0
+          
+          for (const line of lines) {
+            // Look for probe entries (probe-rs list format)
+            if (line.includes('VID:PID') || line.includes('Serial') ||
+                line.includes('ST-Link') || line.includes('J-Link') ||
+                line.includes('CMSIS-DAP')) {
+              
+              // Extract probe name and serial if available
+              let probeName = 'Unknown Probe'
+              if (line.includes('ST-Link')) {
+                probeName = `ST-Link Probe`
+              } else if (line.includes('J-Link')) {
+                probeName = `J-Link Probe`
+              } else if (line.includes('CMSIS-DAP')) {
+                probeName = `CMSIS-DAP Probe`
+              }
+              
+              // Try to extract serial number
+              const serialMatch = line.match(/Serial:\s*([A-Za-z0-9]+)/)
+              if (serialMatch) {
+                probeName += ` (${serialMatch[1]})`
+              }
+
+              devices.push({
+                id: `probe_${probeIndex}`,
+                name: probeName,
+                type: 'real'
+              })
+              probeIndex++
+            }
+          }
+        }
+
+        console.log('Detected devices:', devices)
+        resolve({ success: true, devices })
+      })
+
+      probeProcess.on('error', (error) => {
+        console.log('probe-rs not available, falling back to mock only:', error.message)
+        // Return only mock device if probe-rs is not available
+        resolve({
+          success: true,
+          devices: [{ id: 'mock', name: 'Mock Device', type: 'mock' }]
+        })
+      })
+
+      // Timeout after 5 seconds
+      setTimeout(() => {
+        probeProcess.kill()
+        resolve({
+          success: true,
+          devices: [{ id: 'mock', name: 'Mock Device', type: 'mock' }]
+        })
+      }, 5000)
+    })
+  } catch (error) {
+    return {
+      success: true,
+      devices: [{ id: 'mock', name: 'Mock Device', type: 'mock' }]
+    }
+  }
 })

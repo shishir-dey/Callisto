@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Server management
   getServerStatus: () => ipcRenderer.invoke('get-server-status'),
   restartServer: () => ipcRenderer.invoke('restart-server'),
+  restartServerWithDevice: (deviceType: 'mock' | 'real') => ipcRenderer.invoke('restart-server-with-device', deviceType),
+  getAvailableDevices: () => ipcRenderer.invoke('get-available-devices'),
   
   // File dialogs
   showSaveDialog: (options: any) => ipcRenderer.invoke('show-save-dialog', options),
@@ -26,6 +28,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 export interface ElectronAPI {
   getServerStatus: () => Promise<{ running: boolean; pid?: number }>
   restartServer: () => Promise<{ success: boolean; error?: string }>
+  restartServerWithDevice: (deviceType: 'mock' | 'real') => Promise<{ success: boolean; error?: string }>
+  getAvailableDevices: () => Promise<{ success: boolean; devices: Array<{ id: string; name: string; type: 'mock' | 'real' }> }>
   showSaveDialog: (options: any) => Promise<{ canceled: boolean; filePath?: string }>
   showOpenDialog: (options: any) => Promise<{ canceled: boolean; filePaths?: string[] }>
   platform: string

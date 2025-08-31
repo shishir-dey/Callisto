@@ -28,8 +28,9 @@ just dev
 This will:
 1. Install all dependencies
 2. Generate TypeScript types from JSON schemas
-3. Start the server with mock data on `127.0.0.1:9229`
-4. Launch the Electron client
+3. Start the server on `127.0.0.1:9229`
+4. Launch the Electron client with device selection
+5. Automatically detect available debug probes
 
 ## Architecture
 
@@ -67,7 +68,34 @@ Callisto consists of three main components:
 - **C Header**: `callisto_trace.h` for C/C++ projects
 - **Rust Crate**: `callisto-trace` for embedded Rust projects
 
+## Features
+
+### Device Discovery
+- **Automatic Detection**: Scans for connected debug probes using probe-rs
+- **Mock Support**: Built-in mock device for testing without hardware
+- **Dynamic Switching**: Change devices without restarting the application
+- **Visual Interface**: Modern device selection modal with clear indicators
+
+### Modern UI
+- **Light/Dark Themes**: Toggle between themes with instant switching
+- **Card-Based Layout**: Timeline and performance charts in distinct, bordered cards
+- **Apple-Inspired Design**: Clean, modern interface with smooth animations
+- **Responsive**: Adapts to different window sizes and screen densities
+
+### Real-Time Visualization
+- **Timeline View**: Live ITM event stream with syntax highlighting
+- **Performance Charts**: CPU load, event rate, and throughput monitoring
+- **Event Filtering**: Filter by port, event type, or custom criteria
+- **Export/Import**: Save and load trace sessions (coming soon)
+
 ## Usage
+
+### Getting Started
+
+1. **Launch Application**: Run `just dev` to start both server and client
+2. **Select Device**: Choose from detected probes or use mock device for testing
+3. **Connect**: Click connect to establish communication with your target
+4. **Start Tracing**: Begin capturing ITM data from your embedded application
 
 ### Embedded Integration
 
@@ -204,6 +232,7 @@ callisto/
 
 ## Documentation
 
+- **[Device Discovery](docs/device-discovery.md)**: Device detection, UI enhancements, and management
 - **[Protocol](docs/protocol.md)**: WebSocket message format and ITM port assignments
 - **[Architecture](docs/architecture.md)**: System design and component overview
 - **[Development Workflow](docs/dev-workflow.md)**: Contributing guidelines and best practices
@@ -211,22 +240,31 @@ callisto/
 ## Hardware Support
 
 ### Supported Debug Probes
-- ST-Link V2/V3
-- J-Link (Segger)
-- CMSIS-DAP compatible probes
-- Black Magic Probe
+- **ST-Link V2/V3** (STMicroelectronics) - Full support with automatic detection
+- **J-Link** (Segger) - All models supported via probe-rs
+- **CMSIS-DAP** compatible probes - Standard ARM debug interface
+- **Black Magic Probe** - Open source debug probe
+- **Custom Probes** - Any probe-rs supported device
 
 ### Supported Microcontrollers
-- All ARM Cortex-M series (M0, M0+, M3, M4, M7, M33, M55)
-- STM32 family
-- Nordic nRF series
-- NXP LPC/Kinetis series
-- Atmel/Microchip SAM series
+- **ARM Cortex-M series**: M0, M0+, M3, M4, M7, M33, M55
+- **STM32 family**: All series with ITM support
+- **Nordic nRF series**: nRF52, nRF53, nRF91
+- **NXP LPC/Kinetis series**: LPC4xxx, LPC5xxx, Kinetis K/L series
+- **Atmel/Microchip SAM series**: SAMD, SAME, SAMV
 
 ### Requirements
-- ITM support (most Cortex-M3/M4/M7 devices)
-- SWO pin connected to debug probe
-- ITM enabled in firmware
+- **ITM Support**: Most Cortex-M3/M4/M7 devices (check datasheet)
+- **SWO Connection**: SWO pin connected to debug probe
+- **Firmware Setup**: ITM enabled and configured in target application
+- **Debug Probe**: Connected via USB and recognized by operating system
+
+### Device Detection
+The application automatically scans for connected probes on startup:
+- **Real-time Scanning**: Refresh device list without restarting
+- **Status Indicators**: Clear visual feedback for device availability
+- **Fallback Mode**: Mock device available when no hardware detected
+- **Error Handling**: Graceful handling of disconnected or busy probes
 
 ## Performance
 
@@ -240,21 +278,35 @@ callisto/
 
 ### Common Issues
 
-**"No probes found"**
-- Ensure debug probe is connected and recognized by OS
-- Check USB drivers are installed
-- Try `just list-probes` to verify detection
+**"No devices found" or empty device list**
+- Ensure debug probe is connected via USB
+- Check that probe drivers are installed (ST-Link, J-Link, etc.)
+- Try refreshing the device list using the refresh button
+- Verify probe is not in use by another application (IDE, debugger)
+- Use `just list-probes` command to verify probe detection
+
+**"Failed to connect to device"**
+- Ensure target microcontroller is powered and connected
+- Verify SWO pin is properly connected to debug probe
+- Check that no other debugging session is active
+- Try selecting a different device or using mock device
 
 **"ITM data not received"**
-- Verify SWO pin is connected
-- Check ITM is enabled in target firmware
-- Ensure correct baud rate (typically 2MHz)
-- Verify target CPU frequency matches configuration
+- Verify ITM is enabled and configured in target firmware
+- Check SWO baud rate matches server configuration (typically 2MHz)
+- Ensure target CPU frequency is correctly configured
+- Verify ITM stimulus ports are enabled (ports 0-31)
 
 **"WebSocket connection failed"**
 - Check server is running on port 9229
-- Verify firewall settings
+- Verify firewall is not blocking the connection
 - Try restarting with `just server`
+- Check for port conflicts with other applications
+
+**"Server startup failed" or "Address already in use"**
+- Another server instance may be running - stop it first
+- Check if port 9229 is in use by another application
+- Try restarting the entire development environment with `just dev`
 
 ### Debug Mode
 

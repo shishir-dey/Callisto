@@ -312,18 +312,71 @@ just release  # Build and package everything
 - **Server**: Bundled as resource in Electron app
 - **Libraries**: Published to crates.io and GitHub
 
+## Device Discovery and Management
+
+### Probe Detection
+The server now includes comprehensive device discovery capabilities:
+
+- **Automatic Detection**: Uses probe-rs to scan for connected debug probes
+- **Device Types**: Supports both mock devices (for testing) and real hardware probes
+- **Dynamic Switching**: Users can switch between devices without restarting the application
+- **Graceful Fallback**: Falls back to mock devices if no hardware is detected
+
+### Supported Probe Types
+- ST-Link V2/V3 (STMicroelectronics)
+- J-Link (Segger)
+- CMSIS-DAP compatible probes
+- Black Magic Probe
+- Any probe-rs supported device
+
+### Device Selection UI
+The Electron client features a modern device selection modal:
+
+- **Visual Distinction**: Mock devices (🎭) vs real probes (🔌)
+- **Real-time Scanning**: Refresh button to re-scan for devices
+- **Status Indicators**: Clear indication of device type and capabilities
+- **Theme Support**: Consistent with light/dark theme system
+
+### Server Management
+Enhanced server lifecycle management:
+
+- **Conflict Detection**: Automatically detects if external server is running
+- **Graceful Restart**: Stops and restarts server with new device configuration
+- **Error Handling**: Proper handling of port conflicts and device unavailability
+- **Logging**: Comprehensive logging for debugging device issues
+
+## UI Enhancements
+
+### Theme System
+- **Light/Dark Modes**: Complete theme system with CSS variables
+- **Instant Switching**: Toggle between themes without restart
+- **Consistent Styling**: All components respect theme settings
+- **System Integration**: Follows OS theme preferences
+
+### Card-Based Layout
+- **Visual Separation**: Timeline and performance charts in distinct cards
+- **Borders and Shadows**: Clear visual hierarchy with modern styling
+- **Responsive Design**: Adapts to different window sizes
+- **Accessibility**: High contrast borders for better visibility
+
+### Title Bar Fix
+- **Content Separation**: Fixed overlap between title bar and application content
+- **Cross-Platform**: Consistent behavior across operating systems
+- **Native Feel**: Maintains platform-specific title bar styling
+
 ## Future Enhancements
 
 ### Short Term
-- [ ] Real probe-rs integration (currently mocked)
+- [x] Real probe-rs integration with device discovery
+- [x] Enhanced UI with theme support and card layout
 - [ ] File export/import functionality
 - [ ] Advanced filtering and search
 - [ ] Performance optimizations
 
 ### Medium Term
-- [ ] Multiple probe support
+- [ ] Multiple probe support (concurrent connections)
 - [ ] Remote server connections
-- [ ] Plugin system
+- [ ] Plugin system for custom decoders
 - [ ] Advanced visualization modes
 
 ### Long Term
