@@ -15,6 +15,8 @@ export default defineConfig({
           if (process.env.VSCODE_DEBUG) {
             console.log(/* For `.vscode/.debug.json` */ '[startup] Electron App')
           } else {
+            // Set IS_DEV environment variable for development mode
+            process.env.IS_DEV = 'true'
             options.startup()
           }
         },

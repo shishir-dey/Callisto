@@ -26,7 +26,7 @@ function createWindow(): void {
   // Load the app
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173')
-    mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools({ mode: 'detach', activate: false })
   } else {
     mainWindow.loadFile(join(__dirname, '../dist/index.html'))
   }
@@ -41,8 +41,36 @@ function createWindow(): void {
   })
 }
 
+async function checkServerRunning(): Promise<boolean> {
+  try {
+    // Try to connect to the WebSocket endpoint
+    const response = await fetch('http://127.0.0.1:9229/ws', {
+      method: 'GET',
+      signal: AbortSignal.timeout(3000)
+    })
+    // WebSocket endpoints typically return 426 (Upgrade Required) or 400 (Bad Request)
+    console.log('Server check response status:', response.status)
+    return response.status === 426 || response.status === 400 || response.ok
+  } catch (error) {
+    console.log('Server check failed:', error instanceof Error ? error.message : String(error))
+    return false
+  }
+}
+
 function startServer(): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    // In development mode, check if server is already running
+    if (isDev) {
+      console.log('Development mode detected, checking if server is already running...')
+      const serverRunning = await checkServerRunning()
+      if (serverRunning) {
+        console.log('Server already running, skipping server startup')
+        resolve()
+        return
+      }
+      console.log('No server detected, starting our own...')
+    }
+
     // Always check for dev server first, then fall back to production
     let serverPath: string
 

@@ -14,27 +14,97 @@ default:
 # Development workflow
 dev: typegen
     #!/usr/bin/env bash
+    set -e
+    
     echo "🚀 Starting Callisto development environment..."
+    
+    # Flag to prevent duplicate cleanup
+    CLEANUP_DONE=false
+    
+    # Function to kill processes on specific ports
+    kill_port_processes() {
+        local port=$1
+        local pids=$(lsof -ti:$port 2>/dev/null || true)
+        if [ ! -z "$pids" ]; then
+            echo "   Killing existing processes on port $port..."
+            echo "$pids" | xargs kill -9 2>/dev/null || true
+            sleep 1
+        fi
+    }
+    
+    # Function to cleanup all processes
+    cleanup() {
+        if [ "$CLEANUP_DONE" = true ]; then
+            return
+        fi
+        CLEANUP_DONE=true
+        
+        echo ""
+        echo "🛑 Shutting down development environment..."
+        
+        # Kill process groups to ensure all child processes are terminated
+        if [ ! -z "$SERVER_PID" ]; then
+            echo "   Stopping server (PID: $SERVER_PID)..."
+            # Kill the process group (negative PID)
+            kill -TERM -$SERVER_PID 2>/dev/null || kill -TERM $SERVER_PID 2>/dev/null || true
+        fi
+        
+        if [ ! -z "$CLIENT_PID" ]; then
+            echo "   Stopping client (PID: $CLIENT_PID)..."
+            # Kill the process group (negative PID)
+            kill -TERM -$CLIENT_PID 2>/dev/null || kill -TERM $CLIENT_PID 2>/dev/null || true
+        fi
+        
+        # Wait a moment for graceful shutdown
+        sleep 2
+        
+        # Force kill if still running
+        if [ ! -z "$SERVER_PID" ]; then
+            kill -KILL -$SERVER_PID 2>/dev/null || kill -KILL $SERVER_PID 2>/dev/null || true
+        fi
+        
+        if [ ! -z "$CLIENT_PID" ]; then
+            kill -KILL -$CLIENT_PID 2>/dev/null || kill -KILL $CLIENT_PID 2>/dev/null || true
+        fi
+        
+        # Kill any remaining processes on the ports
+        kill_port_processes 9229
+        kill_port_processes 5173
+        
+        echo "✅ Cleanup complete!"
+    }
+    
+    # Clean up any existing processes on the ports before starting
+    echo "🧹 Cleaning up any existing processes..."
+    kill_port_processes 9229
+    kill_port_processes 5173
+    
+    # Set up signal handlers - only trap SIGINT to avoid duplicate cleanup
+    trap cleanup SIGINT
     
     # Start the server in background
     echo "📡 Starting server..."
-    cd server && cargo run --bin callisto -- --mock &
+    (cd server && exec cargo run --bin callisto -- --mock) &
     SERVER_PID=$!
     
-    # Start the client
+    # Start the client in background
     echo "🖥️  Starting client..."
-    cd client && pnpm dev &
+    (cd client && exec pnpm dev) &
     CLIENT_PID=$!
     
-    # Wait for Ctrl+C
+    # Wait for processes to start
+    sleep 5
+    
+    # Display status
     echo "✅ Development environment running!"
     echo "   Server: http://127.0.0.1:9229/ws"
     echo "   Client: http://localhost:5173"
     echo ""
     echo "Press Ctrl+C to stop..."
     
-    trap "kill $SERVER_PID $CLIENT_PID 2>/dev/null" EXIT
+    # Wait for processes and cleanup when they exit
     wait
+    cleanup
 
 # Generate TypeScript types from JSON schemas
 typegen:
