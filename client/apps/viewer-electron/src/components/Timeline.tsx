@@ -60,17 +60,18 @@ export function Timeline({ events }: TimelineProps) {
   return (
     <div className="timeline">
       <div className="timeline-header">
-        ITM Trace Events ({events.length} events)
+        <div className="timeline-heading">
+          <span className="timeline-status-dot" aria-hidden="true" />
+          <span>ITM Trace Events</span>
+        </div>
+        <span className="event-count">{events.length.toLocaleString()} events</span>
       </div>
       <div className="timeline-content">
         {events.length === 0 ? (
-          <div style={{ 
-            padding: '40px', 
-            textAlign: 'center', 
-            color: '#666',
-            fontStyle: 'italic'
-          }}>
-            No events received yet. Start tracing to see ITM data.
+          <div className="timeline-empty">
+            <span className="timeline-empty-icon" aria-hidden="true">⌁</span>
+            <strong>Waiting for trace events</strong>
+            <span>Connect a device and start tracing to see ITM data.</span>
           </div>
         ) : (
           events.map((event, index) => {

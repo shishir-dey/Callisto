@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { Cable, Cpu, RefreshCw, X } from 'lucide-react'
 import { Toolbar } from './components/Toolbar'
 import { Timeline } from './components/Timeline'
 import { CpuChart } from './components/CpuChart'
@@ -38,43 +39,23 @@ function DeviceSelectionModal({ isOpen, devices, selectedDevice, loading, onSele
   if (!isOpen) return null
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        background: 'var(--bg-card)',
-        border: '2px solid var(--border-color)',
-        borderRadius: '12px',
-        padding: '24px',
-        minWidth: '400px',
-        maxWidth: '600px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 style={{ margin: 0, color: 'var(--text-primary)' }}>Select Device</h2>
-          <button className="btn btn-secondary" onClick={onRefresh} disabled={loading}>
-            {loading ? '🔄' : '↻'} Refresh
+    <div className="modal-backdrop">
+      <div className="device-modal" role="dialog" aria-modal="true" aria-labelledby="device-modal-title">
+        <div className="modal-header">
+          <div>
+            <h2 id="device-modal-title">Select a device</h2>
+            <p>Choose the trace source you want Callisto to monitor.</p>
+          </div>
+          <button className="icon-button" onClick={onClose} aria-label="Close device selection">
+            <X size={17} />
           </button>
         </div>
-        
-        <div style={{ marginBottom: '16px', minHeight: '120px' }}>
+
+        <div className="device-list">
           {loading ? (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '120px',
-              color: 'var(--text-secondary)'
-            }}>
-              🔍 Scanning for devices...
+            <div className="device-loading">
+              <RefreshCw className="spin" size={18} />
+              Scanning for devices…
             </div>
           ) : (
             (() => {
@@ -92,39 +73,37 @@ function DeviceSelectionModal({ isOpen, devices, selectedDevice, loading, onSele
                 const isDisabled = isRealDevice && !hasRealProbes
                 
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={device.id}
                     onClick={() => !isDisabled && onSelect(device)}
-                    style={{
-                      padding: '12px',
-                      margin: '8px 0',
-                      border: `2px solid ${selectedDevice?.id === device.id ? 'var(--accent-color)' : 'var(--border-color)'}`,
-                      borderRadius: '8px',
-                      cursor: isDisabled ? 'not-allowed' : 'pointer',
-                      background: selectedDevice?.id === device.id ? 'rgba(0, 122, 255, 0.1)' : 'var(--bg-secondary)',
-                      opacity: isDisabled ? 0.5 : 1,
-                      transition: 'all 0.2s ease'
-                    }}
+                    disabled={isDisabled}
+                    className={`device-option ${selectedDevice?.id === device.id ? 'selected' : ''}`}
                   >
-                    <div style={{
-                      fontWeight: 'bold',
-                      color: isDisabled ? 'var(--text-secondary)' : 'var(--text-primary)'
-                    }}>
-                      {device.type === 'mock' ? '🎭' : '🔌'} {device.name}
-                      {isDisabled && ' (No probes detected)'}
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                      {device.type === 'mock' ? 'Mock Device - Simulated data' :
-                       isDisabled ? 'Hardware Device - No probes available' : 'Hardware Device - Real probe data'}
-                    </div>
-                  </div>
+                    <span className="device-option-icon">
+                      {device.type === 'mock' ? <Cpu size={19} /> : <Cable size={19} />}
+                    </span>
+                    <span className="device-option-copy">
+                      <strong>{device.name}</strong>
+                      <small>
+                        {device.type === 'mock' ? 'Simulated trace data' :
+                         isDisabled ? 'No hardware probes available' : 'Connected hardware probe'}
+                      </small>
+                    </span>
+                    <span className="selection-ring" aria-hidden="true" />
+                  </button>
                 )
               })
             })()
           )}
         </div>
-        
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+
+        <div className="modal-footer">
+          <button className="btn btn-secondary refresh-button" onClick={onRefresh} disabled={loading}>
+            <RefreshCw className={loading ? 'spin' : ''} size={15} />
+            Refresh
+          </button>
+          <span className="modal-footer-spacer" />
           <button className="btn btn-secondary" onClick={onClose}>
             Cancel
           </button>
@@ -133,7 +112,7 @@ function DeviceSelectionModal({ isOpen, devices, selectedDevice, loading, onSele
             onClick={onClose}
             disabled={!selectedDevice || loading}
           >
-            Connect
+            Use Device
           </button>
         </div>
       </div>
@@ -361,10 +340,10 @@ function App() {
         <div className="timeline-container">
           <Timeline events={state.events} />
         </div>
-        
-        <div className="bottom-panel">
+
+        <aside className="performance-panel">
           <CpuChart stats={state.stats} />
-        </div>
+        </aside>
       </div>
 
       <DeviceSelectionModal

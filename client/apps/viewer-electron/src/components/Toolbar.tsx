@@ -1,3 +1,5 @@
+import { Moon, Power, Sun } from 'lucide-react'
+
 interface Device {
   id: string
   name: string
@@ -30,109 +32,67 @@ export function Toolbar({
   return (
     <div className="toolbar">
       <div className="toolbar-section">
-        {/* Connect/Disconnect Button */}
         {connected ? (
           <button
-            className="btn btn-danger"
+            className="btn btn-danger connection-button"
             onClick={onDisconnect}
-            style={{ 
-              background: '#dc3545',
-              borderColor: '#dc3545',
-              minWidth: '100px'
-            }}
           >
-            🔴 Disconnect
+            <Power size={14} /> Disconnect
           </button>
         ) : (
           <button
-            className="btn btn-primary"
+            className="btn btn-primary connection-button"
             onClick={onConnect}
             disabled={!selectedDevice}
-            style={{ 
-              background: '#28a745',
-              borderColor: '#28a745',
-              minWidth: '100px'
-            }}
           >
-            🟢 Connect
+            <Power size={14} /> Connect
           </button>
         )}
-        
+
         <div className="toolbar-divider" />
-        
-        {/* Device Name */}
+
         {selectedDevice ? (
-          <div
+          <button
+            type="button"
             className={`status-pill ${tracing ? 'tracing' : connected ? 'connected' : 'disconnected'}`}
             onClick={onShowDeviceModal}
-            style={{ cursor: 'pointer' }}
           >
+            <span className="status-dot" aria-hidden="true" />
             {selectedDevice.name}
-          </div>
+          </button>
         ) : (
           <button className="btn btn-secondary" onClick={onShowDeviceModal}>
             Select Device
           </button>
         )}
-        
-        <div className="toolbar-divider" />
-        
-        {/* ITM Baud Rate */}
-        <label htmlFor="baud-select" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-          ITM Baud:
-        </label>
-        <select
-          id="baud-select"
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-color)',
-            color: 'var(--text-primary)',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            marginLeft: '4px'
-          }}
-          defaultValue="2000000"
-        >
-          <option value="115200">115200</option>
-          <option value="460800">460800</option>
-          <option value="921600">921600</option>
-          <option value="2000000">2000000</option>
-        </select>
 
         <div className="toolbar-divider" />
 
-        {/* ITM Ports */}
-        <label htmlFor="port-filter" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-          ITM Ports:
-        </label>
-        <input
-          id="port-filter"
-          type="text"
-          placeholder="0-31"
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-color)',
-            color: 'var(--text-primary)',
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            width: '60px',
-            marginLeft: '4px'
-          }}
-        />
+        <div className="control-group">
+          <label htmlFor="baud-select">ITM Baud</label>
+          <select id="baud-select" defaultValue="2000000">
+            <option value="115200">115200</option>
+            <option value="460800">460800</option>
+            <option value="921600">921600</option>
+            <option value="2000000">2000000</option>
+          </select>
+        </div>
+
+        <div className="toolbar-divider" />
+
+        <div className="control-group">
+          <label htmlFor="port-filter">ITM Ports</label>
+          <input id="port-filter" type="text" placeholder="0–31" />
+        </div>
       </div>
 
-      <div className="toolbar-section" style={{ marginLeft: 'auto' }}>
-        {/* Theme Toggle */}
-        <button className="theme-toggle" onClick={onToggleTheme}>
-          {theme === 'dark' ? '☀️' : '🌙'}
+      <div className="toolbar-section toolbar-actions">
+        <button className="theme-toggle" onClick={onToggleTheme} aria-label={`Use ${theme === 'dark' ? 'light' : 'dark'} theme`}>
+          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
         </button>
-        
+
         {serverVersion && (
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginLeft: '12px' }}>
-            v{serverVersion}
-          </div>
+          <div className="server-version">v{serverVersion}</div>
         )}
       </div>
     </div>
