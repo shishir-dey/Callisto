@@ -62,7 +62,11 @@ export function Toolbar({
         
         {/* Device Name */}
         {selectedDevice ? (
-          <div className="status-pill" onClick={onShowDeviceModal} style={{ cursor: 'pointer' }}>
+          <div
+            className={`status-pill ${tracing ? 'tracing' : connected ? 'connected' : 'disconnected'}`}
+            onClick={onShowDeviceModal}
+            style={{ cursor: 'pointer' }}
+          >
             {selectedDevice.name}
           </div>
         ) : (

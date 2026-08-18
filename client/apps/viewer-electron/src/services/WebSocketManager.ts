@@ -4,7 +4,7 @@ export class WebSocketManager {
   private reconnectAttempts = 0
   private maxReconnectAttempts = 5
   private reconnectInterval = 3000
-  private reconnectTimer: NodeJS.Timeout | null = null
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null
 
   public onMessage: ((message: any) => void) | null = null
   public onConnectionChange: ((connected: boolean) => void) | null = null
